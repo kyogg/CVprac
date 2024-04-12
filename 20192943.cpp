@@ -1,102 +1,80 @@
 #include <iostream>
-#include <stack>
-#include <utility>
 #include <cmath>
 
 using namespace std;
 
-void polygon(pair<int, int> p1, pair<int, int> p2, stack<pair<int, int>> pStack, stack<pair<int, int>>* bStack, double limit, bool close = false) {
-	double exDis;
-	double distance = limit;
-	int x1 = p1.first;
-	int x2 = p2.first;
-	int y1 = p1.second;
-	int y2 = p2.second;
-	int count = 0;
-	stack <pair<int, int>> newPStack = pStack;
-	while (!(newPStack.top() == p1)) {
-		newPStack.pop();
-	}
-	while (!(newPStack.top() == p2)) {
-		exDis = (newPStack.top().first * (y1 - y2) - newPStack.top().second * (x1 - x2) + (y2 * x1) - (y1 * x2)) / sqrt(pow(y1 - y2, 2) + pow((x1 - x2), 2));
+struct point {
+    int x;
+    int y;
+    int idx;
+};
 
-		if (exDis < 0)
-			exDis *= (-1);
-		if (exDis > distance) {
-			distance = exDis;
-			for (int i = 0; i < count; i++) {
-				bStack->pop();
-			}
-			count = 0;
-			bStack->push(newPStack.top());
-			count++;
-		}
-		else if (exDis == distance) {
-			bStack->push(newPStack.top());
-			count++;
-		}
-		newPStack.pop();
-	}
+bool compareP(const point p1, const point p2) {
+    return p1.x == p2.x && p1.y == p2.y;
+}
 
-	if (distance == limit) {
+void printPoint(const point p) {
+    cout << "(" << p.x << "," << p.y << ") ";
+}
 
-		//exDis == limit
-		for (int j = 0; j < count; j++) {
-			bStack->pop();
-		}
-		bStack->pop();
-		cout << "(" << p2.first << "," << p2.second << ") ";
-		if (bStack->empty()) {
-			if (close == false)
-				cout << "(" << p1.first << "," << p1.second << ") ";
-		}
-		else {
-			polygon(bStack->top(), p1, pStack, bStack, limit, close);
-		}
-	}
-	else {
-		polygon(bStack->top(), p2, pStack, bStack, limit, close);
-	}
+bool isClosedCurve(const point p1, const point p2) {
+    return abs(p1.x - p2.x) <= 1 && abs(p1.y - p2.y) <= 1;
+}
+
+double exDistance(const point p1, const point p2, const point middle) {
+    return (middle.x * (p1.y - p2.y) - middle.y * (p1.x - p2.x) + (p2.y * p1.x) - (p1.y * p2.x)) / sqrt(pow(p1.y - p2.y, 2) + pow((p1.x - p2.x), 2));
+}
+
+void polygonApprox(const point C[], const int startIdx, const int endIdx) {
+    const double limit = 1;
+    int pEndIdx, breakPointIdx;
+    double distance = 0;
+    bool isClosed = false;
+
+    if (isClosedCurve(C[startIdx], C[endIdx])) {
+        pEndIdx = (startIdx + endIdx)/2;
+        isClosed = true;
+    }
+    else{
+        pEndIdx = endIdx;
+    }
+
+    for (int i = startIdx; i < endIdx + 1; i++) {
+        double exDis = exDistance(C[startIdx], C[pEndIdx], C[i]);
+        if (distance < exDis) {
+            distance = exDis;
+            breakPointIdx = i;
+        }
+    }
+
+    if (distance > limit) {
+        polygonApprox(C, startIdx, breakPointIdx);
+        printPoint(C[breakPointIdx]);
+        polygonApprox(C, breakPointIdx, endIdx);
+    }
+
+    if (isClosed) {
+        polygonApprox(C, pEndIdx, endIdx);
+    }
+
+    return;
 }
 
 int main(void) {
-	int size;
-	int n, m, x1, y1, x2, y2, limit, fx, fy; //x1~y2 = Ã¹ Áß´ÜÁ¡ ÁÂÇ¥, fx,fy = ´ÝÈù¸ð¾çÀÎÁö ÆÇº°
-	stack<pair<int, int>> pStack;
-	stack<pair<int, int>> bStack;
-	
-	cout << "Á¡ÀÇ °¹¼ö : ";
-	cin >> size;
-	cout << "Á¡ ÀÔ·Â : "; //½ÃÀÛÁ¡ºÎÅÍ ÀÌ¾îÁö°Ô ÀÔ·Â
-	for (int i = 0; i < size; i++) {
-		cin >> n >> m;
-		if (i == 0) {
-			fx = n;
-			fy = m;
-		}
-		pStack.push(make_pair(n, m));
-	}
-	cout << "Áß´ÜÁ¡ ÀÔ·Â : "; //ÇÏ³ª´Â ½ÃÀÛÁ¡
-	cin >> x1 >> y1 >> x2 >> y2;
-	pair<int, int> p1(x1, y1);
-	pair<int, int> p2(x2, y2);
-	bStack.push(p2);
-	cout << "ÀÓ°è°ª ÀÔ·Â : ";
-	cin >> limit;
+    int m, x, y;
+    point *C;
 
-	if ((fx - pStack.top().first) >= -1 && (fx - pStack.top().first) <= 1) {
-		if ((fy - pStack.top().second) >= -1 && (fy - pStack.top().second) <= 1) {
-			pStack.push(make_pair(fx, fy));
-			polygon(p2, p1, pStack, &bStack, limit, true);
-			bStack.push(p1);
-			polygon(p1, p2, pStack, &bStack, limit, true);
-		}
-		else
-			polygon(p2, p1, pStack, &bStack, limit);
-	}
-	else
-		polygon(p2,p1, pStack, &bStack, limit);
-	
-	cout << endl;
-	return 0;
+    cout << "ì ì˜ ê°¯ìˆ˜ ìž…ë ¥ : ";
+    cin >> m;
+    C = (point *)malloc(sizeof(point) *m);
+    cout << "ì  ìž…ë ¥ : ";
+    for (int i = 0; i < m; i++){
+        cin >> C[i].x; 
+        cin >> C[i].y;
+        C[i].idx = i;
+    }
+
+    polygonApprox(C, 0, m - 1);
+    delete[] C;
+    return 0;
 }
