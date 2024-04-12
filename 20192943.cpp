@@ -25,8 +25,7 @@ double exDistance(const point p1, const point p2, const point middle) {
     return (middle.x * (p1.y - p2.y) - middle.y * (p1.x - p2.x) + (p2.y * p1.x) - (p1.y * p2.x)) / sqrt(pow(p1.y - p2.y, 2) + pow((p1.x - p2.x), 2));
 }
 
-void polygonApprox(const point C[], const int startIdx, const int endIdx) {
-    const double limit = 1;
+void polygonApprox(const point C[], const int startIdx, const int endIdx, const double TH) {
     int pEndIdx, breakPointIdx;
     double distance = 0;
     bool isClosed = false;
@@ -47,14 +46,14 @@ void polygonApprox(const point C[], const int startIdx, const int endIdx) {
         }
     }
 
-    if (distance > limit) {
-        polygonApprox(C, startIdx, breakPointIdx);
+    if (distance > TH) {
+        polygonApprox(C, startIdx, breakPointIdx, TH);
         printPoint(C[breakPointIdx]);
-        polygonApprox(C, breakPointIdx, endIdx);
+        polygonApprox(C, breakPointIdx, endIdx, TH);
     }
 
     if (isClosed) {
-        polygonApprox(C, pEndIdx, endIdx);
+        polygonApprox(C, pEndIdx, endIdx, TH);
     }
 
     return;
@@ -63,6 +62,7 @@ void polygonApprox(const point C[], const int startIdx, const int endIdx) {
 int main(void) {
     int m, x, y;
     point *C;
+    double TH;
 
     cout << "점의 갯수 입력 : ";
     cin >> m;
@@ -73,8 +73,10 @@ int main(void) {
         cin >> C[i].y;
         C[i].idx = i;
     }
+    cout << "임계값 입력 : ";
+    cin >> TH;
 
-    polygonApprox(C, 0, m - 1);
+    polygonApprox(C, 0, m - 1, TH);
     delete[] C;
     return 0;
 }
