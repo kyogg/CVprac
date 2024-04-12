@@ -15,7 +15,7 @@ bool compareP(const point p1, const point p2) {
 
 void printPoint(const point p) {
     cout << "(" << p.x << "," << p.y << ") ";
-}
+} 
 
 bool isClosedCurve(const point p1, const point p2) {
     return abs(p1.x - p2.x) <= 1 && abs(p1.y - p2.y) <= 1;
@@ -25,10 +25,14 @@ double exDistance(const point p1, const point p2, const point middle) {
     return abs(middle.x * (p1.y - p2.y) - middle.y * (p1.x - p2.x) + (p2.y * p1.x) - (p1.y * p2.x)) / sqrt(pow(p1.y - p2.y, 2) + pow((p1.x - p2.x), 2));
 }
 
-void polygonApprox(const point C[], const int startIdx, const int endIdx, const double TH) {
+void polygonApprox(const int m, const point C[], const int startIdx, const int endIdx, const double TH) {
     int pEndIdx, breakPointIdx;
     double distance = 0;
     bool isClosed = false;
+
+    if(endIdx - startIdx + 1 == m) {
+        printPoint(C[startIdx]);
+    }
 
     if (isClosedCurve(C[startIdx], C[endIdx])) {
         pEndIdx = (startIdx + endIdx)/2;
@@ -47,13 +51,17 @@ void polygonApprox(const point C[], const int startIdx, const int endIdx, const 
     }
 
     if (distance > TH) {
-        polygonApprox(C, startIdx, breakPointIdx, TH);
+        polygonApprox(m, C, startIdx, breakPointIdx, TH);
         printPoint(C[breakPointIdx]);
-        polygonApprox(C, breakPointIdx, endIdx, TH);
+        polygonApprox(m, C, breakPointIdx, endIdx, TH);
     }
 
     if (isClosed) {
-        polygonApprox(C, pEndIdx, endIdx, TH);
+        printPoint(C[pEndIdx]);
+        polygonApprox(m, C, pEndIdx, endIdx, TH);
+    }
+    else if (endIdx - startIdx + 1 == m) {
+        printPoint(C[endIdx]);
     }
 
     return;
@@ -76,7 +84,7 @@ int main(void) {
     cout << "임계값 입력 : ";
     cin >> TH;
 
-    polygonApprox(C, 0, m - 1, TH);
+    polygonApprox(m, C, 0, m - 1, TH);
     delete[] C;
     return 0;
 }
