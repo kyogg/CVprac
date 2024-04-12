@@ -42,7 +42,7 @@ void polygonApprox(const int m, const point C[], const int startIdx, const int e
         pEndIdx = endIdx;
     }
 
-    for (int i = startIdx; i < endIdx + 1; i++) {
+    for (int i = startIdx; i < pEndIdx + 1; i++) {
         double exDis = exDistance(C[startIdx], C[pEndIdx], C[i]);
         if (distance < exDis) {
             distance = exDis;
@@ -53,7 +53,7 @@ void polygonApprox(const int m, const point C[], const int startIdx, const int e
     if (distance > TH) {
         polygonApprox(m, C, startIdx, breakPointIdx, TH);
         printPoint(C[breakPointIdx]);
-        polygonApprox(m, C, breakPointIdx, endIdx, TH);
+        polygonApprox(m, C, breakPointIdx, pEndIdx, TH);
     }
 
     if (isClosed) {
