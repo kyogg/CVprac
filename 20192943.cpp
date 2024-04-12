@@ -22,7 +22,7 @@ bool isClosedCurve(const point p1, const point p2) {
 }
 
 double exDistance(const point p1, const point p2, const point middle) {
-    return (middle.x * (p1.y - p2.y) - middle.y * (p1.x - p2.x) + (p2.y * p1.x) - (p1.y * p2.x)) / sqrt(pow(p1.y - p2.y, 2) + pow((p1.x - p2.x), 2));
+    return abs(middle.x * (p1.y - p2.y) - middle.y * (p1.x - p2.x) + (p2.y * p1.x) - (p1.y * p2.x)) / sqrt(pow(p1.y - p2.y, 2) + pow((p1.x - p2.x), 2));
 }
 
 void polygonApprox(const point C[], const int startIdx, const int endIdx, const double TH) {
